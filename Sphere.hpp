@@ -1,7 +1,7 @@
 #ifndef SPHERE_HPP_
 #define SPHERE_HPP_
 
-#include "../Vectors/Vector.hpp"
+#include "../MathVector/MathVector.hpp"
 
 struct Material {
     Vector albedo_;

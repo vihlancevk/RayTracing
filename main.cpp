@@ -2,8 +2,8 @@
 #include <cmath>
 #include <vector>
 #include <SFML/Graphics.hpp>
-#include "../Vectors/CoordinateSystem.hpp"
-#include "../Vectors/Vector.hpp"
+#include "../MathVector/CoordinateSystem.hpp"
+#include "../MathVector/MathVector.hpp"
 #include "Sphere.hpp"
 
 struct Light {
@@ -110,7 +110,7 @@ void RayTracing(sf::VertexArray& pixels, CoordinateSystem& coordinateSystem,
             Vector point(xLocal, yLocal, zLocal);
             
             Vector dir = point - orig;
-            dir.NormalizeVector();
+            dir.normalizeVector();
 
             Vector vecColor(0, 0, 0);
             vecColor += RayCasting(orig, dir, lights, spheres);
@@ -134,7 +134,7 @@ bool sceneIntersect(const Vector& orig, const Vector& dir, const std::vector<Sph
         float distSphere = 0;
         if (spheres[i].isRayIntersect(orig, dir, distSphere) && distSphere < maxDistSphere) {
             point = orig + dir*distSphere;
-            normal = (point - spheres[i].center_).NormalizeVector();
+            normal = (point - spheres[i].center_).normalizeVector();
             material = spheres[i].material_;
 
             maxDistSphere = distSphere;
@@ -145,7 +145,7 @@ bool sceneIntersect(const Vector& orig, const Vector& dir, const std::vector<Sph
 }
 
 Vector& reflect(const Vector& lightDir, const Vector& normal) {
-    return (lightDir - 2 * (normal * lightDir) * normal).NormalizeVector();
+    return (lightDir - 2 * (normal * lightDir) * normal).normalizeVector();
 }
 
 Vector RayCasting(Vector& orig, Vector& dir, std::vector<Light> lights, std::vector<Sphere> spheres, const int depth) {
@@ -163,14 +163,14 @@ Vector RayCasting(Vector& orig, Vector& dir, std::vector<Light> lights, std::vec
 
     float diffuseLightIntensity = 0, specularLightIntensity = 0;
     for (size_t i = 0; i < lights.size(); i++) {
-        Vector lightDir = (lights[i].position_ - point).NormalizeVector();
-        float lightDistance = (lights[i].position_ - point).GetVectorLen();
+        Vector lightDir = (lights[i].position_ - point).normalizeVector();
+        float lightDistance = (lights[i].position_ - point).getVectorLen();
 
         Vector shadowOrig = lightDir * normal < 0 ? point - normal * 1e-3f : point + normal * 1e-3f;
         Vector shadowPt, shadowNormal;
         Material tempMaterial;
         if (sceneIntersect(shadowOrig, lightDir, spheres, shadowPt, shadowNormal, tempMaterial) &&
-            (shadowPt-shadowOrig).GetVectorLen() < lightDistance)
+            (shadowPt-shadowOrig).getVectorLen() < lightDistance)
             continue;
 
         diffuseLightIntensity += lights[i].intensity_ * std::max(0.f, lightDir * normal);
